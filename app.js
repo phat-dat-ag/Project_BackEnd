@@ -6,7 +6,7 @@ const ApiError = require("./app/api-error");
 // Khai báo các router
 const readersRouter = require("./app/routes/reader.route");
 const staffRouter = require("./app/routes/staff.route");
-
+const publisheRouter = require("./app/routes/publisher.route");
 
 const app = express();
 
@@ -20,6 +20,7 @@ app.get("/", (req, res) => {
 // Sử dụng các router
 app.use("/api/readers", readersRouter);
 app.use("/api/staffs", staffRouter);
+app.use("/api/publishers", publisheRouter);
 
 // handle 404 response
 app.use((req, res, next) => {
