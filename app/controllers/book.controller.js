@@ -2,7 +2,7 @@ const BookService = require("../services/book.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
 
-// name, price, quantity, publication_year, publisher_id, author
+// name, price, quantity, publication_year, author
 
 // Thêm 1 đối tượng book vào csdl
 exports.create = async (req, res, next) => {

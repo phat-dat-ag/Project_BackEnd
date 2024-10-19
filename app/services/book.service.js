@@ -13,7 +13,6 @@ class BookService {
             price: payload.price,
             quantity: payload.quantity,
             publication_year: payload.publication_year,
-            publisher_id: payload.publisher_id,
             author: payload.author,
         };
         // Xóa các trường không xác định
