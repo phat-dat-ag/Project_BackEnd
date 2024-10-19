@@ -7,6 +7,7 @@ const ApiError = require("./app/api-error");
 const readersRouter = require("./app/routes/reader.route");
 const staffRouter = require("./app/routes/staff.route");
 const publisheRouter = require("./app/routes/publisher.route");
+const bookRouter = require("./app/routes/book.route");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
 app.use("/api/readers", readersRouter);
 app.use("/api/staffs", staffRouter);
 app.use("/api/publishers", publisheRouter);
+app.use("/api/books", bookRouter);
 
 // handle 404 response
 app.use((req, res, next) => {
