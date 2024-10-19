@@ -37,7 +37,7 @@ exports.findAll = async (req, res, next) => {
         // Coi lỗi gì
         console.log(error);
         return next(
-            new ApiError(500, "An error occurred while creating the reader")
+            new ApiError(500, "An error occurred while finding the reader")
         );
     }
     // Trả về danh sách tìm được

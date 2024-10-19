@@ -3,7 +3,9 @@ const cors = require("cors");
 
 const ApiError = require("./app/api-error");
 
+// Khai báo các router
 const readersRouter = require("./app/routes/reader.route");
+const staffRouter = require("./app/routes/staff.route");
 
 
 const app = express();
@@ -15,7 +17,9 @@ app.get("/", (req, res) => {
     res.json({ message: "Welcome to contact book application." });
 });
 
+// Sử dụng các router
 app.use("/api/readers", readersRouter);
+app.use("/api/staffs", staffRouter);
 
 // handle 404 response
 app.use((req, res, next) => {

@@ -41,7 +41,8 @@ class ReaderService {
 
     async findByLastName(last_name) {
         return await this.find({
-            name: { $regex: new RegExp(new RegExp(last_name)), $options: "i" },
+            // name là thiếu, last_name mới đúng
+            last_name: { $regex: new RegExp(new RegExp(last_name)), $options: "i" },
         });
     }
 
