@@ -1,6 +1,7 @@
 const StaffService = require("../services/staff.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
+const TransactionService = require("../services/transaction.service");
 
 
 // fullname, username, password, title, address
@@ -83,7 +84,11 @@ exports.delete = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(400, "Staff not found"));
         }
-        return res.send({ message: "Staff was deleted successfully" });
+        // Ràng buộc dữ liệu
+        // Đi xóa những transaction có staff_id trùng với id của staff đã bị xóa
+        const transactionService = new TransactionService(MongoDB.client);
+        const result = await transactionService.deleteAll({ staff_id: req.params.id });
+        return res.send({ message: `Staff and ${result.deletedCount} transactions were deleted successfully` });
     } catch (error) {
         console.log(error);
         return next(new ApiError(500, `Could not delete staff with id=${req.params.id}`))
@@ -94,6 +99,11 @@ exports.deleteAll = async (req, res, next) => {
     try {
         const staffService = new StaffService(MongoDB.client);
         const result = await staffService.deleteAll();
+        // Ràng buộc dữ liệu
+        // Xóa tất cả staff, thì còn cho mượn/ theo dõi mượn sách đâu => Xóa hết transaction
+        const transactionService = new TransactionService(MongoDB.client);
+        // Không truyền mình đã gán default là xóa hết
+        await transactionService.deleteAll();
         return res.send({ message: `${result.deletedCount} staff was (staffs were) deleted successfully` })
     } catch (error) {
         console.log(error);

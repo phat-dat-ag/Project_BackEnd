@@ -72,10 +72,11 @@ class TransactionService {
         // result mà null thì không tìm thấy nên không xóa được
         return result;
     }
-
-    async deleteAll() {
+    // Xóa tất cả transaction hoặc chỉ xóa các transaction có chứa các trường: book_id, reader_id, staff_id thỏa điều kiện
+    // Mặc định sẽ là xóa tất cả
+    async deleteAll(query = {}) {
         // result chứa 2 trường: acknowledged (có xóa được hay không) và deletedCount (số lượng đã xóa)
-        const result = await this.Transaction.deleteMany({});
+        const result = await this.Transaction.deleteMany(query);
         return result;
     }
 }

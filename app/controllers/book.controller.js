@@ -1,6 +1,7 @@
 const BookService = require("../services/book.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
+const TransactionService = require("../services/transaction.service");
 
 // name, price, quantity, publication_year, author
 
@@ -82,7 +83,11 @@ exports.delete = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(400, "Book not found"));
         }
-        return res.send({ message: "Book was deleted successfully" });
+        // Ràng buộc dữ liệu
+        // Đi xóa những transaction có book_id trùng với id của book đã bị xóa
+        const transactionService = new TransactionService(MongoDB.client);
+        const result = await transactionService.deleteAll({ book_id: req.params.id });
+        return res.send({ message: `Book and ${result.deletedCount} transactions were deleted successfully` });
     } catch (error) {
         console.log(error);
         return next(new ApiError(500, `Could not delete book with id=${req.params.id}`))
@@ -93,6 +98,11 @@ exports.deleteAll = async (req, res, next) => {
     try {
         const bookService = new BookService(MongoDB.client);
         const result = await bookService.deleteAll();
+        // Ràng buộc dữ liệu
+        // Xóa tất cả book, thì còn sách đâu mà mượn => Xóa hết transaction
+        const transactionService = new TransactionService(MongoDB.client);
+        // Không truyền mình đã gán default là xóa hết
+        await transactionService.deleteAll();
         return res.send({ message: `${result.deletedCount} book was (books were) deleted successfully` })
     } catch (error) {
         console.log(error);

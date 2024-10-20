@@ -1,6 +1,7 @@
 const ReaderService = require("../services/reader.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
+const TransactionService = require("../services/transaction.service");
 
 exports.create = async (req, res, next) => {
     // Phải nhập last_name
@@ -89,7 +90,11 @@ exports.delete = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(404, "Reader not found"));
         }
-        return res.send({ message: "Reader was delete successfully" });
+        // Ràng buộc dữ liệu
+        // Khi xóa reader thì xóa các transaction của reader đó
+        const transactionService = new TransactionService(MongoDB.client);
+        const result = await transactionService.deleteAll({ reader_id: req.params.id });
+        return res.send({ message: `Reader and ${result.deletedCount} transactions were delete successfully` });
     } catch (error) {
         // Coi lỗi gì
         console.log(error);
@@ -103,6 +108,11 @@ exports.deleteAll = async (req, res, next) => {
     try {
         const readerService = new ReaderService(MongoDB.client);
         const deletedCount = await readerService.deleteAll();
+        // Ràng buộc dữ liệu
+        // Xóa tất cả reader, thì còn độc giả đâu mà đi mượn sách => Xóa hết transaction
+        const transactionService = new TransactionService(MongoDB.client);
+        // Không truyền mình đã gán default là xóa hết
+        await transactionService.deleteAll();
         return res.send({
             message: `${deletedCount} readers were deleted successfully`,
         });
