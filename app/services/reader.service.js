@@ -15,7 +15,6 @@ class ReaderService {
             sex: payload.sex,
             address: payload.address,
             phone: payload.phone,
-            favorite: payload.favorite,
         };
         // Xóa các trường không xác định
         Object.keys(reader).forEach(
@@ -26,11 +25,7 @@ class ReaderService {
 
     async create(payload) {
         const reader = this.extractReaderData(payload);
-        const result = await this.Reader.findOneAndUpdate(
-            reader,
-            { $set: { favorite: reader.favorite === true } },
-            { returnDocument: "after", upsert: true }
-        );
+        const result = await this.Reader.insertOne(reader);
         return result;
     }
 
@@ -70,10 +65,6 @@ class ReaderService {
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         });
         return result;
-    }
-
-    async findFavorite() {
-        return await this.find({ favorite: true });
     }
 
     async deleteAll() {

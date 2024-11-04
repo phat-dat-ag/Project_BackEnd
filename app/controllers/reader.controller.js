@@ -124,17 +124,3 @@ exports.deleteAll = async (req, res, next) => {
         );
     }
 };
-
-exports.findAllFavorite = async (req, res, next) => {
-    try {
-        const readerService = new ReaderService(MongoDB.client);
-        const documents = await readerService.findFavorite();
-        return res.send(documents);
-    } catch (error) {
-        // Coi lỗi gì
-        console.log(error);
-        return next(
-            new ApiError(500, "An error occurred while retrieving favorite readers")
-        );
-    }
-};

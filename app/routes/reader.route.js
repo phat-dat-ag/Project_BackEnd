@@ -8,9 +8,6 @@ router.route("/")
     .post(readers.create)
     .delete(readers.deleteAll);
 
-router.route("/favorite")
-    .get(readers.findAllFavorite);
-
 router.route("/:id")
     .get(readers.findOne)
     .put(readers.update)
