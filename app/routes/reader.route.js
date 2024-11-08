@@ -13,4 +13,10 @@ router.route("/:id")
     .put(readers.update)
     .delete(readers.delete);
 
+router.route("/check/:username")
+    .get(readers.isExistingUsername);
+
+router.route("/login")
+    .post(readers.login)
+
 module.exports = router;

@@ -2,6 +2,7 @@ const StaffService = require("../services/staff.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
 const TransactionService = require("../services/transaction.service");
+const { checkPassword } = require("../services/hashPassword.service");
 
 
 // fullname, username, password, title, address
@@ -111,3 +112,40 @@ exports.deleteAll = async (req, res, next) => {
     }
 };
 
+exports.isExistingUsername = async (req, res, next) => {
+    try {
+        const staffService = new StaffService(MongoDB.client);
+        const result = await staffService.findUsername(req.params.username);
+        // Nếu chỉ 1 dấu bằng thì so sánh cả null và underfined
+        const isExisting = result !== null;
+        return res.send(isExisting);
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, "An error occurred while checking username"));
+    }
+}
+
+exports.login = async (req, res, next) => {
+    // Yêu cầu có cả username và password
+    if (!req.body?.username || !req.body?.password)
+        return next(new ApiError(400, "username and password can not be empty"));
+    try {
+        const staffService = new StaffService(MongoDB.client);
+        // Lấy thông tin đăng nhập
+        const account = await staffService.login(req.body);
+        // Lấy thông tin trong CSDL
+        const accountDB = await staffService.findByUsername(account.username);
+        // Khi tìm không thấy username
+        if (!accountDB) {
+            // return next(new ApiError(400, "username does not exist"))
+            return res.send(false);
+        }
+        // Khi tìm thấy username
+        const isSucceed = await checkPassword(account.username + account.password, accountDB.password);
+        // Chỉ trả về true or false
+        return res.send(isSucceed);
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, "An error occurred while checking username"));
+    }
+}

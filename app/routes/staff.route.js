@@ -13,4 +13,9 @@ router.route("/:id")
     .put(staffs.update)
     .delete(staffs.delete);
 
+router.route("/check/:username")
+    .get(staffs.isExistingUsername);
+
+router.route("/login")
+    .post(staffs.login);
 module.exports = router;
