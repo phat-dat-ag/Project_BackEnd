@@ -3,7 +3,7 @@ const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
 const TransactionService = require("../services/transaction.service");
 
-// name, price, quantity, publication_year, author
+// name, img, price, quantity, publication_year, author
 
 // Thêm 1 đối tượng book vào csdl
 exports.create = async (req, res, next) => {
@@ -110,3 +110,14 @@ exports.deleteAll = async (req, res, next) => {
     }
 };
 
+exports.uploadBookImage = async (req, res, next) => {
+    try {
+        const bookService = new BookService(MongoDB.client);
+        const filePath = req.file.path; // Đường dẫn tạm của file được upload
+        const imageUrl = await bookService.uploadBookImage(filePath); // Gọi phương thức uploadBookImage từ service
+        return res.send({ success: true, imageUrl });
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, "An error occurred while uploading the book image"));
+    }
+};

@@ -1,4 +1,5 @@
 const { ObjectId } = require("mongodb");
+const cloudinary = require('../utils/cloudinary');
 
 class BookService {
     constructor(client) {
@@ -10,6 +11,7 @@ class BookService {
     extractBookData(payload) {
         const book = {
             name: payload.name,
+            img: payload.img,
             price: payload.price,
             quantity: payload.quantity,
             publication_year: payload.publication_year,
@@ -77,6 +79,18 @@ class BookService {
         // result chứa 2 trường: acknowledged (có xóa được hay không) và deletedCount (số lượng đã xóa)
         const result = await this.Book.deleteMany({});
         return result;
+    }
+
+    // Phương thức xử lý upload ảnh
+    async uploadBookImage(filePath) {
+        try {
+            const result = await cloudinary.uploader.upload(filePath, {
+                folder: "books" // Định rõ thư mục lưu ảnh trong Cloudinary
+            });
+            return result.secure_url; // Trả về URL của ảnh đã upload thành công
+        } catch (error) {
+            throw new Error("Failed to upload image");
+        }
     }
 }
 
