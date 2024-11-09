@@ -16,6 +16,9 @@ router.route("/:id")
 router.route("/check/:username")
     .get(staffs.isExistingUsername);
 
-router.route("/login")
+router.route("/login/account")
     .post(staffs.login);
+
+router.route("/login/profile")
+    .get(staffs.getProfile);
 module.exports = router;

@@ -3,6 +3,7 @@ const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
 const TransactionService = require("../services/transaction.service");
 const { checkPassword } = require("../services/hashPassword.service");
+const jwt = require("jsonwebtoken");
 
 exports.create = async (req, res, next) => {
     // Phải nhập last_name
@@ -156,10 +157,39 @@ exports.login = async (req, res, next) => {
         }
         // Khi tìm thấy username
         const isSucceed = await checkPassword(account.username + account.password, accountDB.password);
-        // Chỉ trả về true or false
-        return res.send(isSucceed);
+        // Thất bại: sai password
+        if (!isSucceed) {
+            return res.send(false);
+        }
+        // Thành công, tiến hành tạo token
+        const payload = {
+            id: accountDB._id,
+            username: accountDB.username
+        };
+        const options = {
+            expiresIn: "1h",
+        };
+        const token = jwt.sign(payload, process.env.SECRET_KEY, options);
+        return res.send({ success: true, token });
     } catch (error) {
         console.log(error);
         return next(new ApiError(500, "An error occurred while checking username"));
     }
+}
+
+
+exports.getProfile = async (req, res, next) => {
+    const token = req.headers.authorization.split(' ')[1];
+    if (!token) {
+        return next(new ApiError(401, "No token provided"));
+    }
+    // giải mã token, lấy thông tin
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    // Lấy reader qua id vừa giải mã
+    const readerService = new ReaderService(MongoDB.client);
+    const reader = await readerService.findByIdReader(decoded.id);
+    // Kiểm tra có lấy được reader không
+    if (!reader)
+        return res.send(false);
+    return res.send(reader);
 }

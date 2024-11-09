@@ -16,7 +16,9 @@ router.route("/:id")
 router.route("/check/:username")
     .get(readers.isExistingUsername);
 
-router.route("/login")
+router.route("/login/account")
     .post(readers.login)
 
+router.route("/login/profile")
+    .get(readers.getProfile);
 module.exports = router;

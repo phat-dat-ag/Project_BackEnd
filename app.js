@@ -10,6 +10,9 @@ const publisheRouter = require("./app/routes/publisher.route");
 const bookRouter = require("./app/routes/book.route");
 const transactionRouter = require("./app/routes/transaction.route");
 
+// Đảm bảo biến môi trường được tải khi ứng dụng khởi chạy
+require("dotenv").config();
+
 const app = express();
 
 app.use(cors());
