@@ -9,6 +9,7 @@ const staffRouter = require("./app/routes/staff.route");
 const publisheRouter = require("./app/routes/publisher.route");
 const bookRouter = require("./app/routes/book.route");
 const transactionRouter = require("./app/routes/transaction.route");
+const adminService = require("./app/routes/admin.route");
 
 // Đảm bảo biến môi trường được tải khi ứng dụng khởi chạy
 require("dotenv").config();
@@ -28,6 +29,7 @@ app.use("/api/staffs", staffRouter);
 app.use("/api/publishers", publisheRouter);
 app.use("/api/books", bookRouter);
 app.use("/api/transactions", transactionRouter);
+app.use("/api/admins", adminService);
 
 // handle 404 response
 app.use((req, res, next) => {
