@@ -56,3 +56,19 @@ exports.login = async (req, res, next) => {
         return next(new ApiError(500, "An error occurred while checking username"));
     }
 }
+
+exports.getProfile = async (req, res, next) => {
+    const token = req.headers.authorization.split(' ')[1];
+    if (!token) {
+        return next(new ApiError(401, "No token provided"));
+    }
+    // giải mã token, lấy thông tin
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    // Lấy admin qua username vừa giải mã
+    const adminService = new AdminService(MongoDB.client);
+    const admin = await adminService.findByUsername(decoded.username);
+    // Kiểm tra có lấy được admin không
+    if (!admin)
+        return res.send(false);
+    return res.send(admin);
+}

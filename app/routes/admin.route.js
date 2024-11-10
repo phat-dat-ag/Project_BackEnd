@@ -9,4 +9,7 @@ router.route("/")
 router.route("/login/account")
     .post(admins.login)
 
+router.route("/login/profile")
+    .get(admins.getProfile);
+
 module.exports = router;
