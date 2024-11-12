@@ -33,25 +33,55 @@ class StaffService {
         return result;
     }
 
+    // Lấy toàn bộ thông tin ngoại trừ password
+    // Không cho đem password ra khỏi CSDL
+    getInfor(staff) {
+        const { password, ...newStaff } = staff;
+        return newStaff;
+    }
+
     // Được dùng trong findAll
     async find(filter) {
         const cursor = await this.Staff.find(filter);
-        return await cursor.toArray();
+        const staffList = await cursor.toArray();
+        let staffs = [];
+        staffList.forEach((staff) => {
+            const newStaff = this.getInfor(staff);
+            staffs.push(newStaff);
+        });
+        return staffs;
     }
 
     // Được dùng trong findAll
     async findByFullName(fullname) {
         // gọi hàm find ở trên, mà hàm ở trên đã cài để trả về mảng toArray rồi
-        return await this.find({
+        const staff = await this.find({
+            // Không cần đúng chính xác fullname tìm kiếm
             fullname: { $regex: new RegExp(new RegExp(fullname)), $options: "i" },
         });
+        // Không tìm thấy => null => trả về null
+        if (!staff)
+            return staff;
+        const newStaff = this.getInfor(staff);
+        return newStaff;
     }
 
     // Được dùng cho findOne
     async findByIdStaff(id) {
-        return await this.Staff.findOne({
+        const staff = await this.Staff.findOne({
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
-        })
+        });
+        // Không tìm thấy => null => trả về null
+        if (!staff)
+            return staff;
+        const newStaff = this.getInfor(staff);
+        return newStaff;
+    }
+
+    // Cho phép lấy password, chỉ dùng trong BE 
+    async findAccountToLogin(username) {
+        const result = await this.Staff.findOne({ username: username });
+        return result;
     }
 
     async update(id, payload) {
@@ -80,11 +110,6 @@ class StaffService {
     async deleteAll() {
         // result chứa 2 trường: acknowledged (có xóa được hay không) và deletedCount (số lượng đã xóa)
         const result = await this.Staff.deleteMany({});
-        return result;
-    }
-
-    async findByUsername(username) {
-        const result = await this.Staff.findOne({ username: username });
         return result;
     }
 

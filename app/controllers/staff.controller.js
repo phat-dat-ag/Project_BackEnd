@@ -135,7 +135,7 @@ exports.login = async (req, res, next) => {
         // Lấy thông tin đăng nhập
         const account = await staffService.login(req.body);
         // Lấy thông tin trong CSDL
-        const accountDB = await staffService.findByUsername(account.username);
+        const accountDB = await staffService.findAccountToLogin(account.username);
         // Khi tìm không thấy username
         if (!accountDB) {
             // return next(new ApiError(400, "username does not exist"))

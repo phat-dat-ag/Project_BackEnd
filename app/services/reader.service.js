@@ -34,22 +34,52 @@ class ReaderService {
         return result;
     }
 
+    // Lấy toàn bộ thông tin ngoại trừ password
+    // Không cho đem password ra khỏi CSDL
+    getInfor(reader) {
+        const { password, ...newReader } = reader;
+        return newReader;
+    }
+
     async find(filter) {
         const cursor = await this.Reader.find(filter);
-        return await cursor.toArray();
+        const readerList = await cursor.toArray();
+        let readers = [];
+        readerList.forEach((reader) => {
+            const newReader = this.getInfor(reader);
+            readers.push(newReader);
+        });
+        return readers;
     }
 
     async findByLastName(last_name) {
-        return await this.find({
-            // name là thiếu, last_name mới đúng
+        const reader = await this.find({
+            // Không cần đúng chính xác last_name tìm kiếm
             last_name: { $regex: new RegExp(new RegExp(last_name)), $options: "i" },
         });
+        // Không tìm thấy => null => trả về null
+        if (!reader)
+            return reader;
+        const newReader = this.getInfor(reader);
+        return newReader;
     }
 
     async findByIdReader(id) {
-        return await this.Reader.findOne({
+        const reader = await this.Reader.findOne({
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
-        })
+        });
+        // Không tìm thấy => null => trả về null
+        if (!reader)
+            return reader;
+        const newReader = this.getInfor(reader);
+        return newReader;
+    }
+
+    // Cho phép lấy password, dùng trong BE
+    async findAccountToLogin(username) {
+        const result = await this.Reader.findOne({ username: username });
+        // Trả về 1 đối tượng reader
+        return result;
     }
 
     async update(id, payload) {
@@ -75,12 +105,6 @@ class ReaderService {
     async deleteAll() {
         const result = await this.Reader.deleteMany({});
         return result.deletedCount;
-    }
-
-    async findByUsername(username) {
-        const result = await this.Reader.findOne({ username: username });
-        // Trả về 1 đối tượng reader
-        return result;
     }
 
     // Xử lý username, password được gửi lên
