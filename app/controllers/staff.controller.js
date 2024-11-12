@@ -116,7 +116,7 @@ exports.deleteAll = async (req, res, next) => {
 exports.isExistingUsername = async (req, res, next) => {
     try {
         const staffService = new StaffService(MongoDB.client);
-        const result = await staffService.findByUsername(req.params.username);
+        const result = await staffService.findAccountToLogin(req.params.username);
         // Nếu chỉ 1 dấu bằng thì so sánh cả null và underfined
         const isExisting = result !== null;
         return res.send(isExisting);
