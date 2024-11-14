@@ -14,6 +14,7 @@ class TransactionService {
             staff_id: payload.staff_id,
             borrow_date: payload.borrow_date,
             return_date: payload.return_date,
+            status: payload.status,
         };
         // Xóa các trường không xác định
         Object.keys(transaction).forEach(
