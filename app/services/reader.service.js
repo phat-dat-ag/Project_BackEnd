@@ -101,9 +101,9 @@ class ReaderService {
         });
         return result;
     }
-
-    async deleteAll() {
-        const result = await this.Reader.deleteMany({});
+    // Xóa tất cả theo thuộc tính được lọc, mặc định là xóa hết
+    async deleteAll(query = {}) {
+        const result = await this.Reader.deleteMany(query);
         return result.deletedCount;
     }
 

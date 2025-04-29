@@ -1,4 +1,6 @@
 const PublisherService = require("../services/publisher.service");
+const BookService = require("../services/book.service");
+const TransactionService = require("../services/transaction.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
 
@@ -74,6 +76,7 @@ exports.update = async (req, res, next) => {
     }
 };
 
+// Ràng buộc: Xóa Publisher => Xóa sách => Xóa Giao dịch mượn
 exports.delete = async (req, res, next) => {
     try {
         const publisherService = new PublisherService(MongoDB.client);
@@ -82,17 +85,38 @@ exports.delete = async (req, res, next) => {
         if (!document) {
             return next(new ApiError(400, "Publisher not found"));
         }
-        return res.send({ message: "Publisher was deleted successfully" });
+        const bookService = new BookService(MongoDB.client);
+        const transactionService = new TransactionService(MongoDB.client);
+        // Tìm những cuốn sách có nhà xuất bản đã xóa
+        const books = await bookService.find({ publisher_id: req.params.id });
+        let transactionDeletedCount = 0;
+        let transactionDeletResult;
+        for (let book of books) {
+            // Xóa những giao dịch có liên quan đến những cuốn sách của nhà xuất bản này
+            // chuyển book._id về kiểu chuỗi cho khớp ở transaction
+            transactionDeletResult = await transactionService.deleteAll({ book_id: book._id.toString() });
+            transactionDeletedCount += transactionDeletResult.deletedCount;
+        }
+        // Xóa những cuốn sách của nhà xuất bản này
+        const bookDeleteResult = await bookService.deleteAll({ publisher_id: req.params.id });
+        return res.send({ message: `Publisher and ${bookDeleteResult.deletedCount} books and ${transactionDeletedCount} transactions were deleted successfully` });
     } catch (error) {
         console.log(error);
         return next(new ApiError(500, `Could not delete publisher with id=${req.params.id}`))
     }
 };
 
+// Ràng buộc: Xóa Publisher => Xóa sách => Xóa Giao dịch mượn
 exports.deleteAll = async (req, res, next) => {
     try {
         const publisherService = new PublisherService(MongoDB.client);
         const result = await publisherService.deleteAll();
+        // Xóa hết sách
+        const bookService = new BookService(MongoDB.client);
+        await bookService.deleteAll();
+        // Xóa hết giao dịch mượn sách
+        const transactionService = new TransactionService(MongoDB.client);
+        await transactionService.deleteAll();
         return res.send({ message: `${result.deletedCount} publisher was (publishers were) deleted successfully` })
     } catch (error) {
         console.log(error);

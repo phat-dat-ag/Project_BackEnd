@@ -106,10 +106,10 @@ class StaffService {
         // result mà null thì không tìm thấy nên không xóa được
         return result;
     }
-
-    async deleteAll() {
+    // Xóa tất cả theo thuộc tính được lọc, mặc định là xóa hết
+    async deleteAll(query = {}) {
         // result chứa 2 trường: acknowledged (có xóa được hay không) và deletedCount (số lượng đã xóa)
-        const result = await this.Staff.deleteMany({});
+        const result = await this.Staff.deleteMany(query);
         return result;
     }
 
