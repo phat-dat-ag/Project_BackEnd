@@ -4,6 +4,7 @@ const ApiError = require("../api-error");
 const TransactionService = require("../services/transaction.service");
 const { checkPassword } = require("../services/hashPassword.service");
 const jwt = require("jsonwebtoken");
+const { ObjectId } = require("mongodb");
 
 exports.create = async (req, res, next) => {
     // Phải nhập last_name
@@ -95,7 +96,7 @@ exports.delete = async (req, res, next) => {
         // Ràng buộc dữ liệu
         // Khi xóa reader thì xóa các transaction của reader đó
         const transactionService = new TransactionService(MongoDB.client);
-        const result = await transactionService.deleteAll({ reader_id: req.params.id });
+        const result = await transactionService.deleteAll({ reader_id: new ObjectId(req.params.id) });
         return res.send({ message: `Reader and ${result.deletedCount} transactions were delete successfully` });
     } catch (error) {
         // Coi lỗi gì

@@ -9,9 +9,9 @@ class TransactionService {
     // Xử lý req.body để hỗ trợ cho phương thức create()
     extractTransactionData(payload) {
         const transaction = {
-            book_id: payload.book_id,
-            reader_id: payload.reader_id,
-            staff_id: payload.staff_id,
+            book_id: new ObjectId(payload.book_id),
+            reader_id: new ObjectId(payload.reader_id),
+            staff_id: new ObjectId(payload.staff_id),
             borrow_date: payload.borrow_date,
             return_date: payload.return_date,
             status: payload.status,

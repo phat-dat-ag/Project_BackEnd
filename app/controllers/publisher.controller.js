@@ -3,6 +3,7 @@ const BookService = require("../services/book.service");
 const TransactionService = require("../services/transaction.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
+const { ObjectId } = require("mongodb");
 
 // name, address
 
@@ -88,17 +89,16 @@ exports.delete = async (req, res, next) => {
         const bookService = new BookService(MongoDB.client);
         const transactionService = new TransactionService(MongoDB.client);
         // Tìm những cuốn sách có nhà xuất bản đã xóa
-        const books = await bookService.find({ publisher_id: req.params.id });
+        const books = await bookService.find({ publisher_id: new ObjectId(req.params.id) });
         let transactionDeletedCount = 0;
         let transactionDeletResult;
         for (let book of books) {
             // Xóa những giao dịch có liên quan đến những cuốn sách của nhà xuất bản này
-            // chuyển book._id về kiểu chuỗi cho khớp ở transaction
-            transactionDeletResult = await transactionService.deleteAll({ book_id: book._id.toString() });
+            transactionDeletResult = await transactionService.deleteAll({ book_id: book._id });
             transactionDeletedCount += transactionDeletResult.deletedCount;
         }
         // Xóa những cuốn sách của nhà xuất bản này
-        const bookDeleteResult = await bookService.deleteAll({ publisher_id: req.params.id });
+        const bookDeleteResult = await bookService.deleteAll({ publisher_id: new ObjectId(req.params.id) });
         return res.send({ message: `Publisher and ${bookDeleteResult.deletedCount} books and ${transactionDeletedCount} transactions were deleted successfully` });
     } catch (error) {
         console.log(error);

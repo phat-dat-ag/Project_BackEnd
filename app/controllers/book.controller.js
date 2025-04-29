@@ -2,6 +2,7 @@ const BookService = require("../services/book.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
 const TransactionService = require("../services/transaction.service");
+const { ObjectId } = require("mongodb");
 
 // name, img, price, quantity, publication_year, author
 
@@ -86,7 +87,7 @@ exports.delete = async (req, res, next) => {
         // Ràng buộc dữ liệu
         // Đi xóa những transaction có book_id trùng với id của book đã bị xóa
         const transactionService = new TransactionService(MongoDB.client);
-        const result = await transactionService.deleteAll({ book_id: req.params.id });
+        const result = await transactionService.deleteAll({ book_id: new ObjectId(req.params.id) });
         return res.send({ message: `Book and ${result.deletedCount} transactions were deleted successfully` });
     } catch (error) {
         console.log(error);

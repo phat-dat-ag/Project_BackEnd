@@ -4,6 +4,7 @@ const ApiError = require("../api-error");
 const TransactionService = require("../services/transaction.service");
 const { checkPassword } = require("../services/hashPassword.service");
 const jwt = require("jsonwebtoken");
+const { ObjectId } = require("mongodb");
 
 
 // fullname, username, password, title, address
@@ -89,7 +90,7 @@ exports.delete = async (req, res, next) => {
         // Ràng buộc dữ liệu
         // Đi xóa những transaction có staff_id trùng với id của staff đã bị xóa
         const transactionService = new TransactionService(MongoDB.client);
-        const result = await transactionService.deleteAll({ staff_id: req.params.id });
+        const result = await transactionService.deleteAll({ staff_id: new ObjectId(req.params.id) });
         return res.send({ message: `Staff and ${result.deletedCount} transactions were deleted successfully` });
     } catch (error) {
         console.log(error);

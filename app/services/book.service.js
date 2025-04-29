@@ -14,7 +14,7 @@ class BookService {
             img: payload.img,
             price: payload.price,
             quantity: payload.quantity,
-            publisher_id: payload.publisher_id,
+            publisher_id: new ObjectId(payload.publisher_id),
             publication_year: payload.publication_year,
             author: payload.author,
         };
