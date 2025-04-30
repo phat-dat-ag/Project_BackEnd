@@ -46,6 +46,36 @@ class BookService {
         });
     }
 
+    async getAllBookWithPublisher() {
+        return this.Book.aggregate([
+            {
+                $lookup: {
+                    from: "publishers",
+                    localField: "publisher_id",
+                    foreignField: "_id",
+                    as: "publisher",
+                }
+            },
+            {
+                // publisher là mảng, nên tách ra thành object
+                $unwind: "$publisher"
+            },
+            // Thêm các trường cần hiển thị của publisher
+            {
+                $addFields: {
+                    publisher_id: "$publisher._id",
+                    publisher_name: "$publisher.name"
+                }
+            },
+            // Ẩn object publisher
+            {
+                $project: {
+                    publisher: 0
+                }
+            }
+        ]).toArray();
+    }
+
     // Được dùng cho findOne
     async findByIdBook(id) {
         return await this.Book.findOne({

@@ -13,4 +13,7 @@ router.route("/:id")
     .put(transactions.update)
     .delete(transactions.delete);
 
+router.route("/find_all_with/information")
+    .get(transactions.findAllTransactionWithFullInformation);
+
 module.exports = router;

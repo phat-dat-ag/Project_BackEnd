@@ -40,6 +40,18 @@ exports.findAll = async (req, res, next) => {
     return res.send(documents);
 };
 
+exports.findAllTransactionWithFullInformation = async (req, res, next) => {
+    let documents = [];
+    try {
+        const transactionService = new TransactionService(MongoDB.client);
+        documents = await transactionService.getAllTransactionWithFullInformation();
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, "An error occurred while finding all transaction with full information"));
+    }
+    return res.send(documents);
+}
+
 exports.findOne = async (req, res, next) => {
     try {
         const transactionService = new TransactionService(MongoDB.client);

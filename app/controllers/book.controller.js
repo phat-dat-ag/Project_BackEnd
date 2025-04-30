@@ -42,6 +42,18 @@ exports.findAll = async (req, res, next) => {
     return res.send(documents);
 };
 
+exports.findAllBookWithPublisher = async (req, res, next) => {
+    let documents = [];
+    try {
+        const bookService = new BookService(MongoDB.client);
+        documents = await bookService.getAllBookWithPublisher();
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, "An error occurred while finding all book with publisher"))
+    }
+    return res.send(documents);
+};
+
 exports.findOne = async (req, res, next) => {
     try {
         const bookService = new BookService(MongoDB.client);

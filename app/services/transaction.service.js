@@ -44,6 +44,68 @@ class TransactionService {
         });
     }
 
+    async getAllTransactionWithFullInformation() {
+        return this.Transaction.aggregate([
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "book_id",
+                    foreignField: "_id",
+                    as: "book",
+                }
+            },
+            { $unwind: "$book" },
+            // Thông qua book
+            {
+                $lookup: {
+                    from: "publishers",
+                    // Thông qua book
+                    localField: "book.publisher_id",
+                    foreignField: "_id",
+                    as: "publisher",
+                }
+            },
+            { $unwind: "$publisher" },
+            {
+                $lookup: {
+                    from: "readers",
+                    localField: "reader_id",
+                    foreignField: "_id",
+                    as: "reader",
+                }
+            },
+            { $unwind: "$reader" },
+            {
+                $lookup: {
+                    from: "staffs",
+                    localField: "staff_id",
+                    foreignField: "_id",
+                    as: "staff",
+                }
+            },
+            { $unwind: "$staff" },
+            // Thêm các trường cần hiển thị từ book, publisher, staff,reader, làm phẳng object
+            {
+                $addFields: {
+                    book_name: "$book.name",
+                    publisher_id: "$publisher._id",
+                    publisher_name: "$publisher.name",
+                    reader_fullname: {
+                        // Hàm nối chuỗi: reader_fullname vẫn là String
+                        $concat: ["$reader.first_name", " ", "$reader.last_name"]
+                    },
+                    staff_fullname: "$staff.fullname",
+                }
+            },
+            // Ẩn đi các object
+            {
+                $project: {
+                    book: 0, publisher: 0, reader: 0, staff: 0
+                }
+            }
+        ]).toArray();
+    }
+
     // Được dùng cho findOne
     async findByIdTransaction(id) {
         return await this.Transaction.findOne({

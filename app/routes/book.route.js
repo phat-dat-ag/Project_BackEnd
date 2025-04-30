@@ -17,6 +17,9 @@ router.route("/:id")
     .put(books.update)
     .delete(books.delete);
 
+router.route("/find_all_with/pubisher")
+    .get(books.findAllBookWithPublisher)
+
 // Route upload ảnh
 router.post("/upload/image", upload.single('img'), books.uploadBookImage);
 
