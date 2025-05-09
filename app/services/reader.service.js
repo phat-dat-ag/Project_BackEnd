@@ -7,20 +7,23 @@ class ReaderService {
     }
     // Định nghĩa các phương thức truy xuất CSDL sử dụng mongodb API
 
-    // Hỗ trợ cho phương thức create()
+    // Hỗ trợ cho phương thức create() và cả update()
     async extractReaderData(payload) {
-        // Gộp usernaem và password để xác định password là duy nhất, không bị trùng
-        const hashedPassword = await hashPassword(payload.password + payload.username);
         const reader = {
             first_name: payload.first_name,
             last_name: payload.last_name,
             username: payload.username,
-            password: hashedPassword,
             birthday: payload.birthday,
             sex: payload.sex,
             address: payload.address,
             phone: payload.phone,
         };
+        // Những lần cập nhật: không đổi/ có password thì khỏi hash lại
+        if (payload.password) {
+            // Gộp usernaem và password để xác định password là duy nhất, không bị trùng
+            const hashedPassword = await hashPassword(payload.password + payload.username);
+            reader.password = hashedPassword;
+        }
         // Xóa các trường không xác định
         Object.keys(reader).forEach(
             (key) => reader[key] === undefined && delete reader[key]
@@ -89,6 +92,7 @@ class ReaderService {
         const update = await this.extractReaderData(payload);
         const result = await this.Reader.findOneAndUpdate(
             filter,
+            // Chỉ cập nhật những trường trong đối tượng update
             { $set: update },
             { returnDocument: "after" }
         );
