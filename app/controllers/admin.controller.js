@@ -19,6 +19,18 @@ exports.create = async (req, res, next) => {
     }
 }
 
+exports.isExistingUsername = async (req, res, next) => {
+    try {
+        const adminService = new AdminService(MongoDB.client);
+        const result = await adminService.findAccountToLogin(req.params.username);
+        // Tìm coi có tài khoản đó chưa
+        const isExisting = result !== null;
+        return res.send(isExisting);
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, "An error occurred while checking username"));
+    }
+}
 
 exports.login = async (req, res, next) => {
     // Yêu cầu có cả username và password

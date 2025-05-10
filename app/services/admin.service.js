@@ -7,11 +7,13 @@ class AdminService {
 
     // Xử lý req.body để hỗ trợ cho phương thức create()
     async extractAdminData(payload) {
-        const hashedPassword = await hashPassword(payload.username + payload.password);
         const admin = {
             username: payload.username,
-            password: hashedPassword,
         };
+        if (payload.password) {
+            const hashedPassword = await hashPassword(payload.username + payload.password);
+            admin.password = hashedPassword;
+        }
         // Xóa các trường không xác định
         Object.keys(admin).forEach(
             (key) => admin[key] === undefined && delete admin[key]
@@ -27,6 +29,12 @@ class AdminService {
     }
 
     async findByUsername(username) {
+        const result = await this.Admin.findOne({ username: username });
+        return result;
+    }
+
+    // Cho phép lấy password, chỉ dùng trong BE 
+    async findAccountToLogin(username) {
         const result = await this.Admin.findOne({ username: username });
         return result;
     }
