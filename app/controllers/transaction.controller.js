@@ -2,14 +2,8 @@ const TransactionService = require("../services/transaction.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
 
-// book_id, reader_id, staff_id, borrow_date, return_date
-
 // Thêm 1 đối tượng transaction vào csdl
 exports.create = async (req, res, next) => {
-    // Không được bỏ trống borrow_date
-    if (!req.body?.borrow_date) {
-        return next(new ApiError(400, "borrow_date can not be empty"))
-    }
     try {
         const transactionService = new TransactionService(MongoDB.client);
         // Thông tin transaction từ req.body

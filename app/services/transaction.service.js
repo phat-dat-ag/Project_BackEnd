@@ -11,9 +11,19 @@ class TransactionService {
         const transaction = {
             book_id: new ObjectId(payload.book_id),
             reader_id: new ObjectId(payload.reader_id),
-            staff_id: new ObjectId(payload.staff_id),
-            borrow_date: payload.borrow_date,
-            return_date: payload.return_date,
+            // Số lượng sách yêu cầu
+            request_quantity: payload.request_quantity,
+            // Thời gian Độc giả gửi yêu cầu
+            request_date: payload.request_date ? new Date(payload.request_date) : null,
+            // admin nào đã duyệt
+            admin_id: payload.admin_id ? new ObjectId(payload.admin_id) : null,
+            // Phân công cho nhân viên nào
+            staff_id: payload.staff_id ? new ObjectId(payload.staff_id) : null,
+            // Ngày mượn chính là ngày được duyệt
+            borrow_date: payload.borrow_date ? new Date(payload.borrow_date) : null,
+            // Ngày cần phải trả sách
+            due_date: payload.due_date ? new Date(payload.due_date) : null,
+            return_date: payload.return_date ? new Date(payload.return_date) : null,
             status: payload.status,
         };
         // Xóa các trường không xác định
@@ -77,14 +87,24 @@ class TransactionService {
             { $unwind: "$reader" },
             {
                 $lookup: {
+                    from: "admin",
+                    localField: "admin_id",
+                    foreignField: "_id",
+                    as: "admin",
+                },
+            },
+            // Tùy chọn cho phép bản ghi được giữ lại kể cả khi nó rỗng hoặc null
+            { $unwind: { path: "$admin", preserveNullAndEmptyArrays: true } },
+            {
+                $lookup: {
                     from: "staffs",
                     localField: "staff_id",
                     foreignField: "_id",
                     as: "staff",
                 }
             },
-            { $unwind: "$staff" },
-            // Thêm các trường cần hiển thị từ book, publisher, staff,reader, làm phẳng object
+            { $unwind: { path: "$staff", preserveNullAndEmptyArrays: true } },
+            // Thêm các trường cần hiển thị từ book, publisher, staff, reader, admin, làm phẳng object
             {
                 $addFields: {
                     book_name: "$book.name",
@@ -94,6 +114,7 @@ class TransactionService {
                         // Hàm nối chuỗi: reader_fullname vẫn là String
                         $concat: ["$reader.first_name", " ", "$reader.last_name"]
                     },
+                    admin_username: "$admin.username",
                     staff_fullname: "$staff.fullname",
                 }
             },
