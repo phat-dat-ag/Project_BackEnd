@@ -16,4 +16,7 @@ router.route("/:id")
 router.route("/find_all_with/information")
     .get(transactions.findAllTransactionWithFullInformation);
 
+router.route("/find_all/by_id")
+    .get(transactions.findAllTransactionWithFullInformationById);
+
 module.exports = router;

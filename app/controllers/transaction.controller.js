@@ -1,6 +1,7 @@
 const TransactionService = require("../services/transaction.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
+const { ObjectId } = require("mongodb");
 
 // Thêm 1 đối tượng transaction vào csdl
 exports.create = async (req, res, next) => {
@@ -42,6 +43,29 @@ exports.findAllTransactionWithFullInformation = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         return next(new ApiError(500, "An error occurred while finding all transaction with full information"));
+    }
+    return res.send(documents);
+}
+
+// Tìm theo reader_id hoặc staff_id: CHỈ 1 TRONG 2
+exports.findAllTransactionWithFullInformationById = async (req, res, next) => {
+    let documents = [];
+    // Tạo bộ lọc id
+    let filter = {};
+    const { reader_id, staff_id } = req.query;
+    if (reader_id && ObjectId.isValid(reader_id))
+        filter.reader_id = new ObjectId(reader_id);
+    else if (staff_id && ObjectId.isValid(staff_id))
+        filter.staff_id = new ObjectId(staff_id);
+    else
+        return res.send(documents);
+    // Tiến hành lọc và trả kết quả
+    try {
+        const transactionService = new TransactionService(MongoDB.client);
+        documents = await transactionService.getAllTransactionWithFullInformation(filter);
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, "An error occurred while finding all transaction with full information by staff_id or reader_id"));
     }
     return res.send(documents);
 }

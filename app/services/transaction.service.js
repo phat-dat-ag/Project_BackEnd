@@ -54,8 +54,11 @@ class TransactionService {
         });
     }
 
-    async getAllTransactionWithFullInformation() {
+    async getAllTransactionWithFullInformation(filter = {}) {
         return this.Transaction.aggregate([
+            {
+                $match: filter,
+            },
             {
                 $lookup: {
                     from: "books",
@@ -121,7 +124,7 @@ class TransactionService {
             // Ẩn đi các object
             {
                 $project: {
-                    book: 0, publisher: 0, reader: 0, staff: 0
+                    book: 0, publisher: 0, reader: 0, staff: 0, admin: 0,
                 }
             }
         ]).toArray();
